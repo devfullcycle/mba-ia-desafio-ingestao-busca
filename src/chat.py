@@ -6,7 +6,7 @@ def main():
     if not chain:
         print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
         return
-    
+
     pass
 
 if __name__ == "__main__":
