@@ -10,7 +10,7 @@ from langchain_postgres import PGVector
 
 load_dotenv()
 
-for k in ("GOOGLE_API_KEY", "PGVECTOR_URL", "PGVECTOR_COLLECTION"):
+for k in ("GOOGLE_API_KEY", "DATABASE_URL", "PG_VECTOR_COLLECTION_NAME"):
     if not os.getenv(k):
         raise RuntimeError(f"Environment variable {k} is not set")
 
@@ -43,8 +43,8 @@ def ingest_pdf():
 
     store = PGVector(
         embeddings=embeddings,
-        collection_name=os.getenv("PGVECTOR_COLLECTION"),
-        connection=os.getenv("PGVECTOR_URL"),
+        collection_name=os.getenv("PG_VECTOR_COLLECTION_NAME"),
+        connection=os.getenv("DATABASE_URL"),
         use_jsonb=True,
     )
 
