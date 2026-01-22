@@ -14,7 +14,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres -d rag"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 5  
     restart: unless-stopped
 
   bootstrap_vector_ext:

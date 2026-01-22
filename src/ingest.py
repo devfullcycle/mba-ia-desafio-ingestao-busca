@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from langchain_community.document_loaders import PyPDFLoader
+import pdfplumber
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_core.documents import Document
@@ -20,11 +20,12 @@ def ingest_pdf():
 
     docs = PyPDFLoader(str(pdf_path)).load()
 
-    splits = RecursiveCharacterTextSplitter(
+    text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=150,
         add_start_index=False
-    ).split_documents(docs)
+    )
+    splits = text_splitter.split_documents(all_documents)
 
     if not splits:
         raise SystemExit(0)
