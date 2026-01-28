@@ -1,29 +1,28 @@
-PROMPT_TEMPLATE = """
-CONTEXTO:
-{contexto}
+import os
+from dotenv import load_dotenv
 
-REGRAS:
-- Responda somente com base no CONTEXTO.
-- Se a informação não estiver explicitamente no CONTEXTO, responda:
-  "Não tenho informações necessárias para responder sua pergunta."
-- Nunca invente ou use conhecimento externo.
-- Nunca produza opiniões ou interpretações além do que está escrito.
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_postgres import PGVector
 
-EXEMPLOS DE PERGUNTAS FORA DO CONTEXTO:
-Pergunta: "Qual é a capital da França?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+def get_vectorstore():
+    load_dotenv()
 
-Pergunta: "Quantos clientes temos em 2024?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+    pg_url = os.getenv("PGVECTOR_URL")
+    collection = os.getenv("PGVECTOR_COLLECTION", "default_collection")
+    embedding_model = os.getenv("GEMINI_EMBEDDING_MODEL", "models/gemini-embedding-001")
 
-Pergunta: "Você acha isso bom ou ruim?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+    if not pg_url:
+        raise RuntimeError("PGVECTOR_URL não encontrada no .env")
 
-PERGUNTA DO USUÁRIO:
-{pergunta}
+    embeddings = GoogleGenerativeAIEmbeddings(model=embedding_model)
 
-RESPONDA A "PERGUNTA DO USUÁRIO"
-"""
+    return PGVector(
+        connection=pg_url,
+        embeddings=embeddings,
+        collection_name=collection,
+        use_jsonb=True,
+    )
 
-def search_prompt(question=None):
-    pass
+def similarity_search(query: str, k: int = 10):
+    vs = get_vectorstore()
+    return vs.similarity_search_with_score(query, k=k)
