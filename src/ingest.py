@@ -6,11 +6,10 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_postgres import PGVector
 
-PDF_PATH = "document.pdf"
-
 def main():
     load_dotenv()
 
+    pdf_path = os.getenv("PDF_PATH")
     openai_key = os.getenv("GOOGLE_API_KEY")
     pg_url = os.getenv("PGVECTOR_URL")
     collection = os.getenv("PGVECTOR_COLLECTION", "default_collection")
@@ -22,7 +21,7 @@ def main():
     if not pg_url:
         raise RuntimeError("PGVECTOR_URL não encontrada no .env")
 
-    loader = PyPDFLoader(PDF_PATH)
+    loader = PyPDFLoader(pdf_path)
     docs = loader.load()
 
     splitter = RecursiveCharacterTextSplitter(

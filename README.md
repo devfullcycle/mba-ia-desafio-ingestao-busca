@@ -38,8 +38,9 @@ docker compose exec postgres psql -U postgres -d rag -c "CREATE EXTENSION IF NOT
 GOOGLE_API_KEY=coloque_sua_key
 GEMINI_EMBEDDING_MODEL=models/gemini-embedding-001
 GEMINI_LLM_MODEL=gemini-2.5-flash
-PGVECTOR_URL=postgresql+psycopg://postgres:postgres@localhost:5432/rag
+PGVECTOR_URL=postgresql+psycopg://postgres:postgres@localhost:5433/rag
 PGVECTOR_COLLECTION=gpt5_collection
+PDF_PATH=document.pdf
 
 ## 3 Instalar dependências
 ```bash
