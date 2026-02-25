@@ -95,7 +95,14 @@ docker compose up -d
 
 O Compose inicializa o PostgreSQL 17 e ativa a extensão `vector` automaticamente.
 
-### 4. Instale as dependências Python
+### 4. Crie e ative o ambiente virtual Python
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 5. Instale as dependências Python
 
 ```bash
 pip install -r requirements.txt
@@ -158,7 +165,7 @@ Você:
 
 ## Exemplo de uso
 
-<!-- Insira aqui uma print da tela do chat em funcionamento -->
+![Exemplo de uso do Chat RAG](./assets/chat-example.png)
 
 ---
 
