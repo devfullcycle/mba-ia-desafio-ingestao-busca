@@ -25,5 +25,5 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
-    pass
+def search_prompt(question=None, contexto=None):
+    return PROMPT_TEMPLATE.format(pergunta=question, contexto=contexto)
