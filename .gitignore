@@ -1,3 +1,33 @@
+# Environment variables
 .env
+
+# Python
+.venv/
 /venv
+venv/
+env/
 __pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+document.pdf
+*.pdf
