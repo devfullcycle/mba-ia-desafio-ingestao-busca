@@ -2,10 +2,9 @@
 
 ## Criação dos Recursos
 
-- [ ] Criar chave OpenAI
-- [ ] Criação de chave no Google AI Studio
-- [ ] Subir banco localmente com o PGVector instalado
-
+- [x] Criar chave OpenAI
+- [x] Criação de chave no Google AI Studio
+- [x] Subir banco localmente com o PGVector instalado
 
 
 ## Ingestão dos Dados
