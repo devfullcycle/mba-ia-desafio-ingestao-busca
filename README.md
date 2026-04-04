@@ -29,8 +29,8 @@ Para ativar, na raiz do repositório, execute:
 
 ``` shell
 python3 -m venv .venv # usa o pacote venv para criar uma pasta .venv com os scripts necessários para ambiente virtual
-sudo chmod +x ./venv/bin/activate # Habilita operações de execução para o binário activate
-source ./venv/bin/activate # ativa o ambiente
+sudo chmod +x .venv/bin/activate # Habilita operações de execução para o binário activate
+source .venv/bin/activate # ativa o ambiente
 ```
 
 Caso precise desativar o ambiente, basta rodar o seguinte comando no repositório:
