@@ -20,7 +20,7 @@ Caso queira confirmar a criação do banco e adição da exteção, utilize as c
 
 
 
-> Este comando sobre os recursos configurados no docker-compose.yaml de modo detached, permitindo que o terminal não fique travado com a execusão dos containers recém criados.
+> Este comando sobe os recursos configurados no docker-compose.yaml de modo detached, permitindo que o terminal não fique travado com a execusão dos containers recém criados.
 
 ## Inicialização do Ambiente
 
@@ -37,5 +37,22 @@ Caso precise desativar o ambiente, basta rodar o seguinte comando no repositóri
 ``` shell
 deactivate
 ```
+
+## Ingestão dos Dados
+
+O Chatbot precisa de dados para realizar a busca. Os dados que serão utilizados estão na raiz do repositório, no arquivo `document.pdf`. Contudo, antes de realizar a busca, é necessário realizar a ingestão destes dados. Para fazê-lo, siga os seguintes passos:
+
+1. Configure a variável `PDF_PATH` no arquivo `.env`.
+2. Configure as variáveis `CHUNK_SIZE` e `CHUNK_OVERLAP` também no `.env`. Esta variáveis representam o comprimento em caracteres dos blocos e a sobreposição entre esses durante *slipt* do texto extraído, respectivamente. 
+3. Rodar o comando:
+``` shell
+python ingest.py
+```
+Com isto os blocos (*chunks*) serão criádos e salvos no banco com seus vetores de *embedding* como chave e os seus textos. Isto então permitirá a busca semântica por meio do cáculo de similaridade entre um vetor de *embedding* da *query*.
+
+
+Para que o chatbot tenha informação disponível para realizar a busca é necessário realizar a ingestão dos dados disponíveis. Os dados consultados 
+
+
 
 Rode o código ingest na raíz do repositório, lembrando que este o repósitório aut
