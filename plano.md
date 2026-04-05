@@ -17,11 +17,12 @@
 
 ## Criação da Busca
 
-- [ ] Configurar a classe de embbeding
-- [ ] Instanciar store do banco
-- [ ] Realizar busca com score no banco
+- [x] Configurar a classe de embbeding
+- [x] Instanciar store do banco
+- [x] Realizar busca com score no banco
 - [ ] Retornar consulta
-
+- [ ] Inserir gerenciamento de janela de contexto
+- [ ] Retornar chain
 
 ## Criação da Interface do Chatbot
 - [ ] Rodar interface
