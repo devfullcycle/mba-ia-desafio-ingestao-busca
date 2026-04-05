@@ -11,8 +11,8 @@
 
 - [x] Ler pdf
 - [x] Subdividir a informação do PDF em chunks com overlap
-- [ ] Configurar classe que realizará os embeddings
-- [ ] Instanciar store do banco
+- [x] Configurar classe que realizará os embeddings
+- [x] Instanciar store do banco
 - [ ] Salvar embeddings e chunks no banco
 
 ## Criação da Busca

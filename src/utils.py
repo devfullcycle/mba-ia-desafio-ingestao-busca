@@ -19,3 +19,7 @@ def resolve_path() -> Path:
         raise FileExistsError(f"Arquivo não encontrado: {user_path}")
 
     return user_path
+
+class AdditionalMetadata():
+    def __init__(self, embedding_type):
+        self.embedding_type = embedding_type
