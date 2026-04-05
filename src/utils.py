@@ -1,4 +1,8 @@
 from langchain_core.documents import Document
+from langchain_openai import OpenAIEmbeddings
+from langchain_postgres import PGVector
+
+from config import Config
 
 
 def validate_chunks(chunks: list[Document]) -> None:
@@ -12,3 +16,15 @@ def validate_chunks(chunks: list[Document]) -> None:
     """
     if not chunks:
         raise ValueError("A lista de chunks não pode estar vazia. Verifique o arquivo PDF.")
+    
+
+def create_embeddings():
+    return OpenAIEmbeddings(model=Config.get_embedding_model_name())
+
+def create_vector_store() -> PGVector:
+    return PGVector(
+        embeddings=create_embeddings(),
+        collection_name=Config.get_collection_name(),
+        connection=Config.PGVECTOR_URL,
+        use_jsonb=True
+    )

@@ -3,11 +3,9 @@ from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
-from langchain_postgres import PGVector
 
 from config import Config
-from utils import validate_chunks
+from utils import validate_chunks, create_vector_store
 
 
 def create_loader(path: Path) -> PyPDFLoader:
@@ -20,13 +18,11 @@ def create_text_splitter() -> RecursiveCharacterTextSplitter:
         add_start_index=False
     )
 
-def get_embedding_model() -> str:
-    return Config.get_embedding_model_name() 
 
 def enrich_documents(chunks: list[Document]) -> list[Document]:
 
     for i in range(len(chunks)):
-        chunks[i].metadata["embedding_type"] = get_embedding_model() 
+        chunks[i].metadata["embedding_type"] = Config.get_embedding_model_name()  
 
     def extract_metadata(doc:Document):
         return {
@@ -34,17 +30,6 @@ def enrich_documents(chunks: list[Document]) -> list[Document]:
             if v not in ("", None)
         }
     return [Document(page_content=c.page_content, metadata=extract_metadata(c)) for c in chunks]
-
-def create_embeddings():
-    return OpenAIEmbeddings(model=get_embedding_model())
-
-def create_vector_store() -> PGVector:
-    return PGVector(
-        embeddings=create_embeddings(),
-        collection_name=Config.get_collection_name(),
-        connection=Config.PGVECTOR_URL,
-        use_jsonb=True
-    )
 
 
 def ingest_pdf():
@@ -59,7 +44,7 @@ def ingest_pdf():
     chunks = enrich_documents(chunks=chunks)
     vector_store = create_vector_store()
 
-    ids=[f"{get_embedding_model()}-{hash(str(path))}-{i}" for i in range(len(chunks))]
+    ids=[f"{Config.get_embedding_model_name()}-{hash(str(path))}-{i}" for i in range(len(chunks))]
     vector_store.add_documents(
         documents=chunks,
         ids=ids
