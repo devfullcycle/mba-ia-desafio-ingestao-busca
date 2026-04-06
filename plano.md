@@ -20,9 +20,9 @@
 - [x] Configurar a classe de embbeding
 - [x] Instanciar store do banco
 - [x] Realizar busca com score no banco
-- [ ] Retornar consulta
-- [ ] Inserir gerenciamento de janela de contexto
-- [ ] Retornar chain
+- [x] Retornar consulta
+- [ ] ~~Inserir gerenciamento de janela de contexto~~
+- [x] Retornar chain
 
 ## Criação da Interface do Chatbot
 - [ ] Rodar interface

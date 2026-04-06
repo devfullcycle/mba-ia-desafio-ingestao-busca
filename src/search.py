@@ -1,5 +1,5 @@
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_core.runnables import RunnableLambda
 
 from utils import create_vector_store
 
@@ -37,20 +37,7 @@ def get_context(query:str) -> str:
 
 def search_prompt(question=None):
 
-  GPT_NANO = "gpt-5-nano"
-  print(question)
+  prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+  add_context = RunnableLambda(lambda x: {"contexto": get_context(x["pergunta"]), "pergunta": x["pergunta"]})
 
-  messages_template = [
-    ("system",PROMPT_TEMPLATE)
-  ]
-
-  prompt = ChatPromptTemplate.from_messages(messages_template)
-
-  llm = ChatOpenAI(model=GPT_NANO,temperature=0.9, disable_streaming=True)
-
-  chain = prompt | llm  
-  result = chain.invoke({"contexto":get_context(query=question),"pergunta":question})
-
-  print(result.content)
-
-  # Alfa Agronegócio Indústria
+  return  add_context  | prompt
