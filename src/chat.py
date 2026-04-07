@@ -3,22 +3,27 @@ from langchain_openai import ChatOpenAI
 from search import search_prompt
 
 def main():
-    question = "Qual a capital da França" 
-    chain = search_prompt(question)
 
-    if not chain:
-        print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
-        return
+    try:
+        question = "Qual a capital da França" 
+        chain = search_prompt(question)
 
-    GPT_NANO = "gpt-5-nano"
-    llm = ChatOpenAI(model=GPT_NANO, temperature=0)
+        if not chain:
+            print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
+            return
 
-    new_chain = chain | llm
+        GPT_NANO = "gpt-5-nano"
+        llm = ChatOpenAI(model=GPT_NANO, temperature=0)
 
-    result = new_chain.invoke({"pergunta":question})
+        new_chain = chain | llm
 
-    print(f"Pergunta: {question}")
-    print(f"Resposta: {result.content}")
+        result = new_chain.invoke({"pergunta":question})
+
+        print(f"Pergunta: {question}")
+        print(f"Resposta: {result.content}")
+
+    except ValueError as e:
+        print(e)
 
 if __name__ == "__main__":
     main()
