@@ -25,8 +25,8 @@
 - [x] Retornar chain
 
 ## Criação da Interface do Chatbot
-- [ ] Rodar interface
-- [ ] Instanciar Dependências
-- [ ] Delegar a busca
-- [ ] Resolver ciclo de conversa
+- [x] Rodar interface
+- [x] Instanciar Dependências
+- [x] Delegar a busca
+- [x] Resolver ciclo de conversa
 

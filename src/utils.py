@@ -1,5 +1,6 @@
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_postgres import PGVector
 
 from config import Config
@@ -19,7 +20,13 @@ def validate_chunks(chunks: list[Document]) -> None:
     
 
 def create_embeddings():
-    return OpenAIEmbeddings(model=Config.get_embedding_model_name())
+    match Config.EMBEDDING_MODEL:
+        case "open_ai":
+            return OpenAIEmbeddings(model=Config.get_embedding_model_name())
+        case "google":
+            return GoogleGenerativeAIEmbeddings(model=Config.get_embedding_model_name())
+        case _:
+            raise LookupError("Opção de embedding model inválida.")
 
 def create_vector_store() -> PGVector:
     return PGVector(

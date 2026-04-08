@@ -21,6 +21,9 @@ class Config:
     OPENAI_EMBEDDING_MODEL: str = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
     GOOGLE_EMBEDDING_MODEL: str = os.environ.get("GOOGLE_EMBEDDING_MODEL", "")
 
+    #
+    GOOGLE_API_KEY: str = os.environ.get("GOOGLE_API_KEY", "")
+
     # Configurações de arquivo
     PDF_PATH: str = os.getenv("PDF_PATH", "")
 
