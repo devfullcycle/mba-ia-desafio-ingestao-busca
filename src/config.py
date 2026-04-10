@@ -10,16 +10,20 @@ class Config:
 
     # Configurações de chunking
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "1000"))
-    CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP", "200"))
+    CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP", "150"))
 
     # Configurações de banco de dados
     PGVECTOR_URL: str = os.environ["PGVECTOR_URL"]
     PG_VECTOR_COLLECTION_NAME: str = os.environ["PG_VECTOR_COLLECTION_NAME"]
 
     # Configurações de embedding
-    EMBEDDING_MODEL: str = os.environ["EMBEDDING_MODEL"]
+    EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL","open_ai")
     OPENAI_EMBEDDING_MODEL: str = os.environ.get("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
-    GOOGLE_EMBEDDING_MODEL: str = os.environ.get("GOOGLE_EMBEDDING_MODEL", "")
+    GOOGLE_EMBEDDING_MODEL: str = os.environ.get("GOOGLE_EMBEDDING_MODEL", "models/embedding-001")
+
+    # Configurações de LLM
+    OPENAI_LLM_MODEL: str = os.environ.get("OPENAI_LLM_MODEL", "gpt-4o-mini")
+    GOOGLE_LLM_MODEL: str = os.environ.get("GOOGLE_LLM_MODEL", "gemini-2.5-flash-lite")
 
     #
     GOOGLE_API_KEY: str = os.environ.get("GOOGLE_API_KEY", "")

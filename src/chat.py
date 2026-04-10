@@ -4,48 +4,48 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from search import search_prompt
 from config import Config
 
+
+def create_llm():
+    match Config.EMBEDDING_MODEL:
+        case "open_ai":
+            return ChatOpenAI(model=Config.OPENAI_LLM_MODEL, temperature=0)
+        case "google":
+            return ChatGoogleGenerativeAI(
+                model=Config.GOOGLE_LLM_MODEL,
+                google_api_key=Config.GOOGLE_API_KEY,
+                temperature=0
+            )
+        case _:
+            raise LookupError("Opção de embedding model inválida.")
+
+def extract_response_text(result) -> str:
+    if isinstance(result.content, list):
+        return result.content[0].get('text', 'Sem resposta') if result.content else "Sem resposta"
+    return result.content
+
 def main():
+    llm = create_llm()
 
-    try:
-        question = "Quais informações você pode me fornecer?" 
-        chain = search_prompt(question)
+    print("Chat iniciado. Digite 'sair' para encerrar.\n")
 
-        if not chain:
-            print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
-            return
+    while True:
+        try:
+            question = input("PERGUNTA: ").strip()
 
-        match Config.EMBEDDING_MODEL:
-            case "open_ai":
-                GPT_NANO = "gpt-5-nano"
-                llm = ChatOpenAI(model=GPT_NANO, temperature=0)
-            case "google":
-                GIMINI = "gemini-2.5-flash-lite"
-                llm = ChatGoogleGenerativeAI(
-                    model= GIMINI,
-                    google_api_key=Config.GOOGLE_API_KEY,
-                    temperature=0.7
-                )
-            case _:
-                raise LookupError("Opção de embedding model inválida.")
-        
-        new_chain = chain | llm
+            if question.lower() in ("sair"):
+                break
 
-        result = new_chain.invoke({"pergunta":question})
+            if not question:
+                continue
 
-        print(f"Pergunta: {question}")
+            chain = search_prompt(question) | llm
+            result = chain.invoke({"pergunta": question})
+            resposta = extract_response_text(result)
+            print(f"RESPOSTA: {resposta}\n")
 
-        # Extrai o texto da resposta (formato varia entre OpenAI e Google)
-        if isinstance(result.content, list):
-            # Google Gemini retorna uma lista de dicionários
-            resposta = result.content[0]['text'] if result.content else "Sem resposta"
-        else:
-            # OpenAI retorna string diretamente
-            resposta = result.content
+        except ValueError as e:
+            print(e)
 
-        print(f"Resposta: {resposta}")
-
-    except ValueError as e:
-        print(e)
 
 if __name__ == "__main__":
     main()

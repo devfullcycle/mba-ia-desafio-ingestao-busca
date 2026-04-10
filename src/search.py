@@ -36,10 +36,10 @@ def get_context(query:str) -> str:
   return "\n---\n".join(docs)
 
 def search_prompt(question=None):
-  if(question in (None,"")):
-    raise ValueError("O argumeto de entrada 'question' deve ser uma str.")
+  if question in (None, ""):
+    raise ValueError("O argumento de entrada 'question' deve ser uma str não vazia.")
 
   prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
   add_context = RunnableLambda(lambda x: {"contexto": get_context(x["pergunta"]), "pergunta": x["pergunta"]})
 
-  return  add_context  | prompt
+  return add_context | prompt
