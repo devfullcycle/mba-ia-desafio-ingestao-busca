@@ -65,8 +65,13 @@ PG_VECTOR_COLLECTION_NAME=document_embeddings
 PDF_PATH=document.pdf
 ```
 
+> [!WARNING]
+> O `.env.example` original continha valores entre aspas simples (ex: `'models/embedding-001'`). **Remover as aspas** — o `python-dotenv` as trata como caracteres literais, causando erros nos nomes dos modelos.
+
 > [!NOTE]
 > O `DATABASE_URL` deriva diretamente do `docker-compose.yml`: usuário `postgres`, senha `postgres`, banco `rag`, porta `5432`. O driver DEVE ser `psycopg` (não `psycopg2`).
+>
+> O modelo `models/embedding-001` é legacy, mas produz vetores de **768 dimensões fixas** — compatível com o `vector_size=768` definido no `init_vectorstore_table`.
 
 #### [NEW] `.env`
 
@@ -96,8 +101,7 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_postgres import PGEngine
-from langchain_postgres.vectorstores import PGVectorStore
+from langchain_postgres import PGEngine, PGVectorStore
 
 load_dotenv()
 
@@ -185,8 +189,7 @@ import os
 
 from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_postgres import PGEngine
-from langchain_postgres.vectorstores import PGVectorStore
+from langchain_postgres import PGEngine, PGVectorStore
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -360,27 +363,12 @@ if __name__ == "__main__":
 - A formatação da saída segue o padrão da spec: `RESPOSTA: <texto>`.
 - O invoke recebe um dicionário com as variáveis `contexto` e `pergunta`, que correspondem às variáveis do `PromptTemplate`.
 
----
 
-### 5. Atualizar `.env.example`
-
-#### [MODIFY] `.env.example`
-
-Atualizar para conter os valores padrão corretos:
-
-```env
-GOOGLE_API_KEY=
-GOOGLE_EMBEDDING_MODEL=models/embedding-001
-OPENAI_API_KEY=
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/rag
-PG_VECTOR_COLLECTION_NAME=document_embeddings
-PDF_PATH=document.pdf
-```
 
 ---
 
-### 6. Atualizar README.md
+
+### 5. Atualizar README.md
 
 #### [MODIFY] `README.md`
 
@@ -444,7 +432,6 @@ PDF_PATH=document.pdf
 │   └── chat.py          # CLI para interação com usuário
 ├── document.pdf         # PDF para ingestão
 └── README.md
-```
 ```
 
 ---
