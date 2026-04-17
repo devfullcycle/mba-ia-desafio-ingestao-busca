@@ -83,7 +83,7 @@ def search_prompt():
         return None
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model="models/gemini-3.1-flash-lite-preview",
         temperature=0,
     )
 
