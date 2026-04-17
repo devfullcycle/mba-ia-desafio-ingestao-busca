@@ -13,12 +13,12 @@ Este documento descreve **cada etapa técnica em detalhe** para implementar o si
 | Provedor LLM / Embeddings | Google Gemini (`langchain-google-genai`) |
 | Modelo de Embeddings | `models/embedding-001` (768 dimensões) |
 | Modelo de Chat (LLM) | `gemini-2.0-flash` |
-| Vector Store | `PGVectorStore` + `PGEngine` (pacote `langchain-postgres>=0.0.14`) |
+| Vector Store | `PGVector` (pacote `langchain-postgres==0.0.15`) |
 | Driver PostgreSQL | `psycopg` (psycopg3) — connection string: `postgresql+psycopg://` |
 | Collection / Table Name | `document_embeddings` |
 
 > [!IMPORTANT]
-> O pacote `langchain-postgres` na versão 0.0.15 (presente no `requirements.txt`) **deprecou** a classe `PGVector` em favor de `PGVectorStore` + `PGEngine`. O plano original referenciava `PGVector` — isso foi corrigido. A spec menciona `from langchain_postgres import PGVector` como **recomendação**, mas a implementação correta usa a API moderna.
+> Embora o pacote `langchain-postgres` 0.0.15 ofereça `PGVectorStore` + `PGEngine` como API "moderna", essa abordagem usa wrappers async internos que causam conflitos de `asyncio` event loop com o gRPC do `GoogleGenerativeAIEmbeddings` (`RuntimeError: attached to a different loop`). A implementação final usa a classe `PGVector` (baseada em SQLAlchemy síncrono), conforme recomendado na spec (`from langchain_postgres import PGVector`).
 
 ---
 
@@ -101,7 +101,7 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_postgres import PGEngine, PGVectorStore
+from langchain_postgres import PGVector
 
 load_dotenv()
 
@@ -143,18 +143,12 @@ def ingest_pdf():
     # Passo 3: Instanciar o modelo de embeddings
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
 
-    # Passo 4: Configurar o PGEngine e inicializar a tabela
-    engine = PGEngine.from_connection_string(url=DATABASE_URL)
-    engine.init_vectorstore_table(
-        table_name=COLLECTION_NAME,
-        vector_size=VECTOR_SIZE,
-    )
-
-    # Passo 5: Criar o VectorStore
-    vector_store = PGVectorStore.create_sync(
-        engine=engine,
-        table_name=COLLECTION_NAME,
-        embedding_service=embeddings,
+    # Passo 4 e 5: Criar o VectorStore
+    vector_store = PGVector(
+        embeddings=embeddings,
+        collection_name=COLLECTION_NAME,
+        connection=DATABASE_URL,
+        use_jsonb=True,
     )
 
     # Passo 6: Salvar os chunks no banco
@@ -168,9 +162,9 @@ if __name__ == "__main__":
 ```
 
 **Detalhes importantes para o agente executor:**
-- A ordem dos passos é crítica: engine → init_table → create store → add_documents.
-- `init_vectorstore_table` é idempotente (pode ser chamado múltiplas vezes sem erro).
-- O `vector_size=768` corresponde ao modelo `embedding-001` do Google. Se mudar o modelo de embeddings, este valor deve ser atualizado.
+- O `PGVector` cria a tabela automaticamente na primeira chamada `add_documents()`.
+- A constante `VECTOR_SIZE = 768` é mantida como referência, mas não é passada explicitamente — o `PGVector` infere a dimensão do embedding.
+- Se mudar o modelo de embeddings, o `VECTOR_SIZE` de referência deve ser atualizado para documentação.
 
 ---
 
@@ -189,7 +183,7 @@ import os
 
 from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_postgres import PGEngine, PGVectorStore
+from langchain_postgres import PGVector
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -229,14 +223,14 @@ RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
 
-def _get_vector_store() -> PGVectorStore:
-    """Instancia e retorna o PGVectorStore conectado ao banco."""
+def _get_vector_store() -> PGVector:
+    """Instancia e retorna o PGVector conectado ao banco."""
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
-    engine = PGEngine.from_connection_string(url=DATABASE_URL)
-    vector_store = PGVectorStore.create_sync(
-        engine=engine,
-        table_name=COLLECTION_NAME,
-        embedding_service=embeddings,
+    vector_store = PGVector(
+        embeddings=embeddings,
+        collection_name=COLLECTION_NAME,
+        connection=DATABASE_URL,
+        use_jsonb=True,
     )
     return vector_store
 
@@ -327,7 +321,8 @@ def main():
 
     while True:
         try:
-            pergunta = input("\nFaça sua pergunta: ").strip()
+            print("\nFaça sua pergunta:\n")
+            pergunta = input("PERGUNTA: ").strip()
 
             if not pergunta:
                 continue
@@ -440,7 +435,7 @@ if __name__ == "__main__":
 
 | # | Problema no Plano Original | Correção |
 |---|---|---|
-| 1 | Referenciava `PGVector` (deprecated na v0.0.15) | Usa `PGVectorStore` + `PGEngine` (API moderna) |
+| 1 | API `PGVectorStore`+`PGEngine` causava crash de event loop com Google gRPC | Revertido para `PGVector` (SQLAlchemy síncrono, conforme spec) |
 | 2 | Não especificava `vector_size` | Adicionado `vector_size=768` (modelo `embedding-001`) |
 | 3 | Não detalhava imports nem código exato | Código completo e copy-paste-ready para cada arquivo |
 | 4 | `search.py` não conectava ao banco vetorial | Implementa `_get_vector_store()` com conexão completa |

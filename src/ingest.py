@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_postgres import PGEngine, PGVectorStore
+from langchain_postgres import PGVector
 
 load_dotenv()
 
@@ -47,18 +47,12 @@ def ingest_pdf():
     # Passo 3: Instanciar o modelo de embeddings
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
 
-    # Passo 4: Configurar o PGEngine e inicializar a tabela
-    engine = PGEngine.from_connection_string(url=DATABASE_URL)
-    engine.init_vectorstore_table(
-        table_name=COLLECTION_NAME,
-        vector_size=VECTOR_SIZE,
-    )
-
-    # Passo 5: Criar o VectorStore
-    vector_store = PGVectorStore.create_sync(
-        engine=engine,
-        table_name=COLLECTION_NAME,
-        embedding_service=embeddings,
+    # Passo 4 e 5: Criar o VectorStore
+    vector_store = PGVector(
+        embeddings=embeddings,
+        collection_name=COLLECTION_NAME,
+        connection=DATABASE_URL,
+        use_jsonb=True,
     )
 
     # Passo 6: Salvar os chunks no banco

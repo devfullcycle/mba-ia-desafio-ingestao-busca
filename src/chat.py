@@ -20,7 +20,8 @@ def main():
 
     while True:
         try:
-            pergunta = input("\nFaça sua pergunta: ").strip()
+            print("\nFaça sua pergunta:\n")
+            pergunta = input("PERGUNTA: ").strip()
 
             if not pergunta:
                 continue

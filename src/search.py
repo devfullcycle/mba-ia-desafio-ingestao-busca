@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_postgres import PGEngine, PGVectorStore
+from langchain_postgres import PGVector
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -42,14 +42,14 @@ RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
 
-def _get_vector_store() -> PGVectorStore:
-    """Instancia e retorna o PGVectorStore conectado ao banco."""
+def _get_vector_store() -> PGVector:
+    """Instancia e retorna o PGVector conectado ao banco."""
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
-    engine = PGEngine.from_connection_string(url=DATABASE_URL)
-    vector_store = PGVectorStore.create_sync(
-        engine=engine,
-        table_name=COLLECTION_NAME,
-        embedding_service=embeddings,
+    vector_store = PGVector(
+        embeddings=embeddings,
+        collection_name=COLLECTION_NAME,
+        connection=DATABASE_URL,
+        use_jsonb=True,
     )
     return vector_store
 
