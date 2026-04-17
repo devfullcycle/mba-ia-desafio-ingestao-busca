@@ -17,17 +17,5 @@ services:
       retries: 5
     restart: unless-stopped
 
-  bootstrap_vector_ext:
-    image: pgvector/pgvector:pg17
-    depends_on:
-      postgres:
-        condition: service_healthy
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      PGPASSWORD=postgres
-      psql "postgresql://postgres@postgres:5432/rag" -v ON_ERROR_STOP=1
-      -c "CREATE EXTENSION IF NOT EXISTS vector;"
-    restart: "no"
-
 volumes:
   postgres_data:
