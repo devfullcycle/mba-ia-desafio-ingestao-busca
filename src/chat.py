@@ -1,11 +1,11 @@
 from search import search_prompt
 
 def main():
-    print("Full Cycle - Chat")
+    print("Faça sua pergunta:")
     print("Digite 'sair' para encerrar.")
     
     while True:
-        question = input("\nVocê: ").strip()
+        question = input("\nPergunta: ").strip()
         
         if question.lower() in ['sair', 'quit', 'exit']:
             print("Encerrando o chat. Até logo!")
@@ -16,7 +16,7 @@ def main():
             
         try:
             response = search_prompt(question)
-            print(f"Assistente: {response}")
+            print(f"Resposta: {response}")
         except Exception as e:
             print(f"Erro: {e}")
             print("Verifique se o banco de dados está rodando e os documentos foram ingeridos.")
