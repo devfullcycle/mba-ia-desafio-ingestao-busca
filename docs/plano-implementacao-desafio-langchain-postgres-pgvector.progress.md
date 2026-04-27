@@ -1,7 +1,7 @@
 # Phase 01 — RAG CLI com LangChain, PostgreSQL e pgvector — Progress
 
-**Status:** in_progress
-**SIs:** 3/5 completed
+**Status:** completed
+**SIs:** 5/5 completed
 
 ### SI-01.1 — Consolidar baseline de infraestrutura, configuracao e estrutura do projeto
 - **Status:** completed
@@ -24,6 +24,6 @@
 - **Observations:** a busca semantica foi validada por doubles em teste de integracao, mas a checagem real de conectividade com PostgreSQL permaneceu bloqueada neste workspace porque `docker` e `psql` nao estao disponiveis e `DATABASE_URL` nao esta configurada
 
 ### SI-01.5 — Implementar a CLI de chat, fluxo de execucao e documentacao final
-- **Status:** pending
-- **Tests:** pending
-- **Observations:** none
+- **Status:** completed
+- **Tests:** `python3 -m pytest tests/unit/test_chat_cli.py tests/e2e/test_cli_flow.py` -> passed (4 tests)
+- **Observations:** a CLI final foi validada localmente com testes unitarios e E2E simulados; a demonstracao manual com PostgreSQL real continua dependente de um ambiente com `docker compose` e `DATABASE_URL` disponiveis
