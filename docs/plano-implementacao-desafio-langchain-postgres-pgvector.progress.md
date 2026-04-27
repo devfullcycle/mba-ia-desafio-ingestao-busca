@@ -19,9 +19,9 @@
 - **Observations:** o teste de integracao com pgvector esta implementado, mas depende de um PostgreSQL disponivel em `DATABASE_URL`
 
 ### SI-01.4 — Implementar busca semantica e montagem do prompt restritivo
-- **Status:** pending
-- **Tests:** pending
-- **Observations:** none
+- **Status:** completed
+- **Tests:** `python3 -m pytest tests/unit/test_search_prompt.py tests/unit/test_search_fallback.py tests/integration/test_similarity_search.py` -> passed (3 tests)
+- **Observations:** a busca semantica foi validada por doubles em teste de integracao, mas a checagem real de conectividade com PostgreSQL permaneceu bloqueada neste workspace porque `docker` e `psql` nao estao disponiveis e `DATABASE_URL` nao esta configurada
 
 ### SI-01.5 — Implementar a CLI de chat, fluxo de execucao e documentacao final
 - **Status:** pending
