@@ -28,21 +28,23 @@ services:
       psql "postgresql://postgres@postgres:5432/rag" -v ON_ERROR_STOP=1
       -c "CREATE EXTENSION IF NOT EXISTS vector;"
     restart: "no"
-
-app:
+  app:
     build:
       context: .
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: app_dev
     depends_on:
       bootstrap_vector_ext:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rag
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/rag
+      PG_VECTOR_COLLECTION_NAME: rag_document
+      PDF_PATH: /app/document.pdf
+      LLM_PROVIDER: openai
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+    working_dir: /app
+    command: ["sleep", "infinity"]
     stdin_open: true
     tty: true
 
