@@ -1,6 +1,8 @@
+from langchain_core.prompts import ChatPromptTemplate
+
 PROMPT_TEMPLATE = """
 CONTEXTO:
-{contexto}
+{context}
 
 REGRAS:
 - Responda somente com base no CONTEXTO.
@@ -20,10 +22,9 @@ Pergunta: "Você acha isso bom ou ruim?"
 Resposta: "Não tenho informações necessárias para responder sua pergunta."
 
 PERGUNTA DO USUÁRIO:
-{pergunta}
+{query}
 
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
-    pass
+search_prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
