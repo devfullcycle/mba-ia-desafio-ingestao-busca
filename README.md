@@ -65,3 +65,13 @@ Para iniciar o chat interativo no terminal e conversar com o conteúdo do PDF:
 python src/chat.py
 ```
 O chat buscará os 10 fragmentos mais relevantes do PDF para gerar cada resposta.
+
+### 3. Encerrar a Infraestrutura
+Para parar os containers do banco de dados:
+```bash
+docker-compose stop
+```
+Para remover completamente os containers e os volumes de dados (limpar o banco):
+```bash
+docker-compose down -v
+```
