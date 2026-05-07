@@ -1,3 +1,15 @@
+import os
+from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_postgres import PGVector
+from langchain.prompts import PromptTemplate
+
+load_dotenv()
+for k in ("GOOGLE_API_KEY", "PGVECTOR_URL","PGVECTOR_COLLECTION"):
+    if not os.getenv(k):
+        raise RuntimeError(f"Environment variable {k} is not set")
+
 PROMPT_TEMPLATE = """
 CONTEXTO:
 {contexto}
@@ -26,4 +38,24 @@ RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
 def search_prompt(question=None):
-    pass
+  embeddings = GoogleGenerativeAIEmbeddings(model=os.getenv("GOOGLE_EMBEDDING_MODEL"))
+  
+  store = PGVector(
+      embeddings=embeddings,
+      collection_name=os.getenv("PGVECTOR_COLLECTION"),
+      connection=os.getenv("PGVECTOR_URL"),
+      use_jsonb=True,
+  )
+
+  results = store.similarity_search_with_score(question, k=10)
+  
+  gemini = init_chat_model(model="gemini-2.5-flash", model_provider="google_genai")
+    
+  template = PromptTemplate(
+    input_variables=["contexto", "pergunta"],
+    template=PROMPT_TEMPLATE
+  )
+  
+  text = template.format(contexto=results, pergunta=question)
+  
+  return gemini.invoke(text).content
