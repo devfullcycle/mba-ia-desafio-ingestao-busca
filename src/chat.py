@@ -8,9 +8,8 @@ model = ChatOpenAI(model="gpt-5-nano", temperature=0.5)
 system = ("system", PROMPT_TEMPLATE)
 chat_prompt = ChatPromptTemplate([system])
 
-pergunta = "Qual o faturamento da empresa X?"
-
 def main():
+    pergunta = input("Faça sua pergunta: ")
     chain = search_prompt(pergunta)
 
     if not chain:
@@ -23,7 +22,6 @@ def main():
     )
     result = model.invoke(messages)
     print(result.content)
-    
 
 if __name__ == "__main__":
     main()
