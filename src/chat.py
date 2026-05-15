@@ -1,13 +1,30 @@
 from search import search_prompt
 
-def main():
-    chain = search_prompt()
 
-    if not chain:
-        print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
-        return
-    
-    pass
+def main() -> None:
+    print("Chat RAG — digite sua pergunta (ou 'sair' para encerrar)\n")
+
+    while True:
+        try:
+            question = input("PERGUNTA: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nEncerrando.")
+            break
+
+        if not question:
+            continue
+        if question.lower() in {"sair", "exit", "quit"}:
+            break
+
+        try:
+            answer = search_prompt(question)
+        except Exception as exc:
+            print(f"\nRESPOSTA: Erro ao processar pergunta: {exc}")
+            continue
+
+        print(f"\nRESPOSTA: {answer}\n")
+        print("---")
+
 
 if __name__ == "__main__":
     main()
