@@ -1,5 +1,8 @@
 # Desafio MBA Engenharia de Software com IA - Full Cycle
 
+> Requer Python 3.11.9 para compatibilidade com as versões das dependências fixadas no requirements.txt.
+> Configure o pyenv e garanta que a versão correta do Python esteja correta antes das etapas de setup abaixo.
+
 Este é um pequeno laboratório RAG.
 
 O projeto disponibiliza duas funcionalidades:
@@ -12,8 +15,6 @@ O projeto disponibiliza duas funcionalidades:
 Siga o passo a passo para fazer o setup e utilização do projeto.
 
 ### Setup
-
-> Requer Python 3.11.9 para compatibilidade com as versões das dependências fixadas no requirements.txt.
 
 1. Criar ambiente para o projeto
 
