@@ -1,3 +1,15 @@
+import os
+from dotenv import load_dotenv
+
+from langchain_postgres import PGVector
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+COLLECTION_NAME = os.getenv("PG_VECTOR_COLLECTION_NAME")
+
+
 PROMPT_TEMPLATE = """
 CONTEXTO:
 {contexto}
@@ -25,5 +37,27 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
-    pass
+def search_prompt(question):
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    vector_store = PGVector(
+        embeddings=embeddings,
+        collection_name=COLLECTION_NAME,
+        connection=DATABASE_URL,
+    )
+
+    results = vector_store.similarity_search_with_score(
+        question,
+        k=10
+    )
+
+    contexto = "\n\n".join([
+        doc.page_content for doc, score in results
+    ])
+
+    return PROMPT_TEMPLATE.format(
+        contexto=contexto,
+        pergunta=question
+    )
