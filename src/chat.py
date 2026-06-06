@@ -20,17 +20,14 @@ def main():
             print("Encerrando chat...")
             break
 
-        # 1. monta prompt com contexto do PGVector
         prompt = search_prompt(pergunta)
 
         if not prompt:
             print("Erro ao gerar contexto.\n")
             continue
 
-        # 2. chama LLM
         response = llm.invoke(prompt)
 
-        # 3. exibe resposta
         print("\nRESPOSTA:")
         print(response.content)
         print("\n" + "-" * 50 + "\n")
