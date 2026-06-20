@@ -1,6 +1,6 @@
 import os
 
-from config import DATABASE_URL, COLLECTION_NAME, EMBEDDING_MODEL
+from config import DATABASE_URL, COLLECTION_NAME, EMBEDDING_MODEL, LLM_MODEL
 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_postgres import PGVector
@@ -77,7 +77,7 @@ def search_prompt():
         return "\n\n".join(textos)
 
     llm = ChatGoogleGenerativeAI(
-        model="models/gemini-3.1-flash-lite-preview",
+        model=LLM_MODEL,
         temperature=0,
     )
 
