@@ -54,19 +54,6 @@ def _get_vector_store() -> PGVector:
     return vector_store
 
 
-def buscar_contexto(query: str, k: int = 10) -> str:
-    """
-    Busca os k documentos mais similares à query no banco vetorial.
-    Retorna os textos concatenados como uma string única.
-    """
-    vector_store = _get_vector_store()
-    resultados = vector_store.similarity_search_with_score(query, k=k)
-
-    # Cada resultado é uma tupla (Document, score)
-    textos = [doc.page_content for doc, _score in resultados]
-    return "\n\n".join(textos)
-
-
 def search_prompt():
     """
     Retorna um dicionário com os componentes necessários para o chat:
@@ -78,9 +65,22 @@ def search_prompt():
     if not DATABASE_URL:
         print("ERRO: DATABASE_URL não configurada no .env")
         return None
-    if not os.getenv("GOOGLE_API_KEY"):
-        print("ERRO: GOOGLE_API_KEY não configurada no .env")
+
+    # Inicializa o vector store UMA VEZ
+    try:
+        vector_store = _get_vector_store()
+    except Exception as e:
+        print(f"ERRO ao inicializar embeddings ou conexão com banco: {e}")
         return None
+
+    def buscar_contexto(query: str, k: int = 10) -> str:
+        """
+        Busca os k documentos mais similares à query no banco vetorial.
+        Retorna os textos concatenados como uma string única.
+        """
+        resultados = vector_store.similarity_search_with_score(query, k=k)
+        textos = [doc.page_content for doc, _score in resultados]
+        return "\n\n".join(textos)
 
     llm = ChatGoogleGenerativeAI(
         model="models/gemini-3.1-flash-lite-preview",
