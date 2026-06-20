@@ -1,17 +1,11 @@
 import os
 
-from dotenv import load_dotenv
+from config import DATABASE_URL, COLLECTION_NAME, EMBEDDING_MODEL
+
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_postgres import PGVector
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-
-load_dotenv()
-
-# --- Configuração ---
-DATABASE_URL = os.getenv("DATABASE_URL")
-COLLECTION_NAME = os.getenv("PG_VECTOR_COLLECTION_NAME", "document_embeddings")
-EMBEDDING_MODEL = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/embedding-001")
 
 # --- Prompt Template (conforme spec.md) ---
 PROMPT_TEMPLATE = """

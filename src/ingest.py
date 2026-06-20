@@ -2,25 +2,20 @@ import os
 import sys
 import time
 
-from dotenv import load_dotenv
+from config import (
+    DATABASE_URL,
+    COLLECTION_NAME,
+    PDF_PATH,
+    EMBEDDING_MODEL,
+    RATE_LIMIT_TPM,
+    CHARS_PER_TOKEN,
+    SAFETY_MARGIN,
+)
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_postgres import PGVector
 from tenacity import retry, stop_after_attempt, wait_exponential
-
-load_dotenv()
-
-# --- Configuração via variáveis de ambiente ---
-DATABASE_URL = os.getenv("DATABASE_URL")
-COLLECTION_NAME = os.getenv("PG_VECTOR_COLLECTION_NAME", "document_embeddings")
-PDF_PATH = os.getenv("PDF_PATH", "document.pdf")
-EMBEDDING_MODEL = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/embedding-001")
-
-# --- Controle de rate limit da API de embeddings ---
-RATE_LIMIT_TPM = 30_000      # tokens por minuto (limite da API Google)
-CHARS_PER_TOKEN = 2           # estimativa conservadora 
-SAFETY_MARGIN = 0.75          # usar apenas 75% do limite para margem de segurança
 
 
 def _estimate_tokens(text: str) -> int:
