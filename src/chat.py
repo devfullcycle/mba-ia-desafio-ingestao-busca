@@ -45,6 +45,9 @@ def main():
         except KeyboardInterrupt:
             print("\n\nEncerrando. Até logo!")
             break
+        except Exception as e:
+            print(f"\nERRO ao processar pergunta: {e}")
+            print("Tente novamente.\n")
 
 
 if __name__ == "__main__":

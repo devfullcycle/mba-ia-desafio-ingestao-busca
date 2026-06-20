@@ -7,6 +7,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_postgres import PGVector
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 load_dotenv()
 
@@ -52,7 +53,17 @@ def _build_batches(chunks) -> list[list]:
     return batches
 
 
-def ingest_pdf():
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=4, max=60),
+    reraise=True,
+)
+def _add_documents_with_retry(vector_store: PGVector, batch: list) -> None:
+    """Adiciona documentos ao vector store com retry automático."""
+    vector_store.add_documents(batch)
+
+
+def ingest_pdf() -> None:
     """Carrega o PDF, divide em chunks, gera embeddings e salva no PGVector."""
 
     # Valida variáveis obrigatórias
@@ -62,8 +73,15 @@ def ingest_pdf():
 
     # Passo 1: Carregar o PDF
     print(f"Carregando PDF: {PDF_PATH}")
-    loader = PyPDFLoader(PDF_PATH)
-    documents = loader.load()
+    try:
+        loader = PyPDFLoader(PDF_PATH)
+        documents = loader.load()
+    except FileNotFoundError:
+        print(f"ERRO: Arquivo não encontrado: {PDF_PATH}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERRO ao carregar PDF: {e}")
+        sys.exit(1)
     print(f"  -> {len(documents)} páginas carregadas.")
 
     # Passo 2: Dividir em chunks
@@ -74,16 +92,18 @@ def ingest_pdf():
     chunks = text_splitter.split_documents(documents)
     print(f"  -> {len(chunks)} chunks gerados.")
 
-    # Passo 3: Instanciar o modelo de embeddings
-    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
-
-    # Passo 4 e 5: Criar o VectorStore
-    vector_store = PGVector(
-        embeddings=embeddings,
-        collection_name=COLLECTION_NAME,
-        connection=DATABASE_URL,
-        use_jsonb=True,
-    )
+    # Passo 3-5: Instanciar embeddings e criar VectorStore
+    try:
+        embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
+        vector_store = PGVector(
+            embeddings=embeddings,
+            collection_name=COLLECTION_NAME,
+            connection=DATABASE_URL,
+            use_jsonb=True,
+        )
+    except Exception as e:
+        print(f"ERRO ao inicializar embeddings ou conexão com banco: {e}")
+        sys.exit(1)
 
     # Passo 6: Salvar os chunks no banco em lotes (rate limit)
     batches = _build_batches(chunks)
@@ -94,8 +114,13 @@ def ingest_pdf():
     for batch_num, batch in enumerate(batches, 1):
         batch_tokens = sum(_estimate_tokens(c.page_content) for c in batch)
         print(f"  -> Lote {batch_num}/{len(batches)} ({len(batch)} chunks, ~{batch_tokens} tokens)...", end=" ", flush=True)
-        vector_store.add_documents(batch)
-        print("OK")
+        try:
+            _add_documents_with_retry(vector_store, batch)
+            print("OK")
+        except Exception as e:
+            print(f"FALHOU")
+            print(f"     ERRO no lote {batch_num}: {e}")
+            sys.exit(1)
 
         # Pausa fixa de 60 segundos entre os lotes (exceto no último)
         if batch_num < len(batches):
