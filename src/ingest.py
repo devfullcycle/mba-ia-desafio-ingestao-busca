@@ -19,8 +19,8 @@ EMBEDDING_MODEL = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/embedding-001")
 
 # --- Controle de rate limit da API de embeddings ---
 RATE_LIMIT_TPM = 30_000      # tokens por minuto (limite da API Google)
-CHARS_PER_TOKEN = 4           # estimativa conservadora (recomendação Google)
-SAFETY_MARGIN = 0.80          # usar apenas 80% do limite para margem de segurança
+CHARS_PER_TOKEN = 2           # estimativa conservadora 
+SAFETY_MARGIN = 0.75          # usar apenas 75% do limite para margem de segurança
 
 
 def _estimate_tokens(text: str) -> int:
