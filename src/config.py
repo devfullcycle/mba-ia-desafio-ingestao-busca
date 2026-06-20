@@ -17,5 +17,5 @@ LLM_MODEL = os.getenv("GOOGLE_LLM_MODEL", "models/gemini-3.1-flash-lite-preview"
 
 # Configuração de Rate Limit
 RATE_LIMIT_TPM = 30_000
-CHARS_PER_TOKEN = 4
-SAFETY_MARGIN = 0.80
+CHARS_PER_TOKEN = 2
+SAFETY_MARGIN = 0.75

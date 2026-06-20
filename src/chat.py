@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+# Garante que imports locais funcionem independente de onde o script é chamado
+sys.path.append(str(Path(__file__).parent))
+
 from search import search_prompt
 
 
