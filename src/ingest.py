@@ -3,7 +3,6 @@ import sys
 import time
 
 from dotenv import load_dotenv
-from google import genai
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -17,25 +16,18 @@ COLLECTION_NAME = os.getenv("PG_VECTOR_COLLECTION_NAME", "document_embeddings")
 PDF_PATH = os.getenv("PDF_PATH", "document.pdf")
 EMBEDDING_MODEL = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/embedding-001")
 
-# Dimensão do modelo embedding-001 do Google
-VECTOR_SIZE = 768
-
 # --- Controle de rate limit da API de embeddings ---
 RATE_LIMIT_TPM = 30_000      # tokens por minuto (limite da API Google)
 CHARS_PER_TOKEN = 4           # estimativa conservadora (recomendação Google)
 SAFETY_MARGIN = 0.80          # usar apenas 80% do limite para margem de segurança
 
 
-
-def _count_tokens_api(client: genai.Client, texts: list[str], model_name: str) -> int:
-    """Usa a API do Google para retornar o número exato de tokens da lista de textos."""
-    if not texts:
-        return 0
-    response = client.models.count_tokens(model=model_name, contents=texts)
-    return response.total_tokens
+def _estimate_tokens(text: str) -> int:
+    """Estima o número de tokens de um texto usando a proporção chars/token."""
+    return len(text) // CHARS_PER_TOKEN
 
 
-def _build_batches(client: genai.Client, chunks, model_name: str) -> list[list]:
+def _build_batches(chunks) -> list[list]:
     """
     Agrupa chunks em lotes dinâmicos que respeitam o rate limit.
     Cada lote consome no máximo RATE_LIMIT_TPM * SAFETY_MARGIN tokens estimados.
@@ -46,8 +38,7 @@ def _build_batches(client: genai.Client, chunks, model_name: str) -> list[list]:
     current_tokens = 0
 
     for chunk in chunks:
-        # Conta e adiciona o tamanho real
-        chunk_tokens = _count_tokens_api(client, [chunk.page_content], model_name)
+        chunk_tokens = _estimate_tokens(chunk.page_content)
         if current_batch and (current_tokens + chunk_tokens) > max_tokens_per_batch:
             batches.append(current_batch)
             current_batch = []
@@ -68,11 +59,6 @@ def ingest_pdf():
     if not DATABASE_URL:
         print("ERRO: DATABASE_URL não configurada no .env")
         sys.exit(1)
-    if not os.getenv("GOOGLE_API_KEY"):
-        print("ERRO: GOOGLE_API_KEY não configurada no .env")
-        sys.exit(1)
-        
-    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
     # Passo 1: Carregar o PDF
     print(f"Carregando PDF: {PDF_PATH}")
@@ -100,15 +86,14 @@ def ingest_pdf():
     )
 
     # Passo 6: Salvar os chunks no banco em lotes (rate limit)
-    print("Contabilizando tokens reais via API (isso pode demorar um pouco devido à latência de rede)...")
-    batches = _build_batches(client, chunks, EMBEDDING_MODEL)
-    total_tokens = _count_tokens_api(client, [c.page_content for c in chunks], EMBEDDING_MODEL)
+    batches = _build_batches(chunks)
+    total_tokens = sum(_estimate_tokens(c.page_content) for c in chunks)
     print(f"Salvando embeddings no banco de dados...")
-    print(f"  -> {len(batches)} lote(s) | {total_tokens} tokens REAIS confirmados | limite: {RATE_LIMIT_TPM} TPM")
+    print(f"  -> {len(batches)} lote(s) | ~{total_tokens} tokens estimados | limite: {RATE_LIMIT_TPM} TPM")
 
     for batch_num, batch in enumerate(batches, 1):
-        batch_tokens = _count_tokens_api(client, [c.page_content for c in batch], EMBEDDING_MODEL)
-        print(f"  -> Lote {batch_num}/{len(batches)} ({len(batch)} chunks, {batch_tokens} tokens)...", end=" ", flush=True)
+        batch_tokens = sum(_estimate_tokens(c.page_content) for c in batch)
+        print(f"  -> Lote {batch_num}/{len(batches)} ({len(batch)} chunks, ~{batch_tokens} tokens)...", end=" ", flush=True)
         vector_store.add_documents(batch)
         print("OK")
 
