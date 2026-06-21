@@ -52,9 +52,19 @@
 ├── requirements.txt
 ├── .env.example
 ├── src/
+│   ├── config.py        # Configurações centralizadas e rate limit
 │   ├── ingest.py        # Script de ingestão do PDF
 │   ├── search.py        # Busca vetorial e montagem do prompt
 │   └── chat.py          # CLI para interação com usuário
 ├── document.pdf         # PDF para ingestão
 └── README.md
 ```
+
+### Controle de Rate Limit (API do Google)
+
+O uso da cota gratuita da API do Google possui limitações restritas de tokens por minuto (TPM). Para evitar erros de limite excedido (como o status `429 Too Many Requests`) durante a ingestão do PDF e geração de embeddings em lotes, o sistema implementa um controle de taxa de envio.
+
+As configurações que controlam esse mecanismo estão definidas em [src/config.py](file:///c:/DEV/FullCycle/desafios/mba-ia-desafio-ingestao-busca/src/config.py):
+- **`RATE_LIMIT_TPM`** (`30_000`): Limite de tokens por minuto estipulado para a API.
+- **`CHARS_PER_TOKEN`** (`2`): Fator de conversão aproximado de caracteres por token para estimar o tamanho do payload.
+- **`SAFETY_MARGIN`** (`0.75`): Margem de segurança de 75% aplicada ao limite total do lote para evitar estouro acidental do limite estimado.
