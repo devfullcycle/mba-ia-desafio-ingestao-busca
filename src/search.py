@@ -1,3 +1,12 @@
+from openai import OpenAI
+from langchain_core.runnables import RunnableLambda
+
+from config import (
+    OPENAI_API_KEY,
+    create_embeddings,
+    create_vector_store,
+)
+
 PROMPT_TEMPLATE = """
 CONTEXTO:
 {contexto}
@@ -25,5 +34,43 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
-    pass
+
+def _search_prompt(question=None):
+
+    if not question:
+        raise ValueError("A pergunta é obrigatória.")
+
+    embeddings = create_embeddings()
+
+    vector_store = create_vector_store(embeddings)
+
+    results = vector_store.similarity_search_with_score(
+        question,
+        k=10
+    )
+
+    if not results:
+        return "Não tenho informações necessárias para responder sua pergunta."
+
+    context = "\n\n".join(
+        doc.page_content
+        for doc, score in results
+    )
+
+    prompt = PROMPT_TEMPLATE.format(
+        contexto=context,
+        pergunta=question
+    )
+
+    client = OpenAI(
+        api_key=OPENAI_API_KEY
+    )
+
+    response = client.responses.create(
+        model="gpt-5-nano",
+        input=prompt
+    )
+
+    return response.output_text.strip()
+
+search_prompt = RunnableLambda(_search_prompt)
