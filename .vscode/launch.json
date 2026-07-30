@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug ingest.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/ingest.py",
+      "console": "integratedTerminal",
+      "python": "${workspaceFolder}/venv/Scripts/python.exe",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug search.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/search.py",
+      "console": "integratedTerminal",
+      "python": "${workspaceFolder}/venv/Scripts/python.exe",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug chat.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/chat.py",
+      "console": "integratedTerminal",
+      "python": "${workspaceFolder}/venv/Scripts/python.exe",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
