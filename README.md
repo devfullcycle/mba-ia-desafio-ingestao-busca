@@ -161,10 +161,13 @@ PERGUNTA: "Qual o faturamento da empresa SuperTechIABrazil?"
 OpenAI com os modelos citados nominalmente no desafio: `text-embedding-3-small` e
 `gpt-5-nano`.
 
-**Temperatura do modelo.** O `gpt-5-nano` pertence à família de raciocínio do
-GPT-5, que aceita apenas o valor padrão de temperatura e rejeita a requisição se
-outro for informado. Por isso o `ChatOpenAI` é instanciado sem esse parâmetro, e a
-fidelidade ao contexto fica a cargo do prompt.
+**Temperatura do modelo.** O `ChatOpenAI` é instanciado com `temperature=0`. A
+tarefa é extrair um dado que já está no contexto, não gerar texto novo — qualquer
+criatividade aqui viraria alucinação e quebraria a regra central do desafio.
+
+Vale registrar que `temperature=0` reduz a variação, mas a API não garante
+determinismo absoluto: em 4 execuções da mesma pergunta o valor extraído foi
+sempre o mesmo, variando apenas a pontuação final da frase.
 
 **Correção no `docker-compose.yml`.** O serviço `bootstrap_vector_ext` encerrava
 com código 0 sem criar a extensão `vector`. A causa era `entrypoint: ["/bin/sh",

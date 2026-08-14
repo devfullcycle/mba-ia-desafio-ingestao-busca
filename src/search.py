@@ -117,7 +117,9 @@ class RespondedorDePerguntas:
         self._buscador = buscador
         self._cadeia = (
             PromptTemplate.from_template(PROMPT_TEMPLATE)
-            | ChatOpenAI(model=modelo_de_linguagem)
+            # A tarefa e extrair um dado do contexto, nao gerar texto novo:
+            # temperatura zero mantem a resposta fiel e reproduzivel.
+            | ChatOpenAI(model=modelo_de_linguagem, temperature=0)
             | StrOutputParser()
         )
 
