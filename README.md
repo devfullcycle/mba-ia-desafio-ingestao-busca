@@ -175,13 +175,3 @@ com código 0 sem criar a extensão `vector`. A causa era `entrypoint: ["/bin/sh
 em tokens, então o `sh -c` recebia apenas `PGPASSWORD=postgres` como script — uma
 atribuição de variável que retorna 0 — e o `psql` nunca era executado. O `command`
 passou a ser uma lista de um item, que chega inteiro ao shell.
-
-## Solução de problemas
-
-| Sintoma | Causa provável |
-| --- | --- |
-| `A variavel de ambiente X nao esta definida no .env` | O `.env` não foi criado a partir do `.env.example`, ou a variável está vazia |
-| `connection refused` na porta 5432 | O container não subiu: rode `docker compose up -d` e aguarde o healthcheck |
-| `type "vector" does not exist` | A extensão não foi criada: rode `docker compose up bootstrap_vector_ext` |
-| Respostas sempre com a frase de recusa | A ingestão não foi executada; confira a contagem com `docker exec postgres_rag psql -U postgres -d rag -c "SELECT count(*) FROM langchain_pg_embedding;"` |
-| `429 You exceeded your current quota` | A API Key não tem créditos disponíveis |
