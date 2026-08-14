@@ -23,10 +23,14 @@ services:
       postgres:
         condition: service_healthy
     entrypoint: ["/bin/sh", "-c"]
-    command: >
-      PGPASSWORD=postgres
-      psql "postgresql://postgres@postgres:5432/rag" -v ON_ERROR_STOP=1
-      -c "CREATE EXTENSION IF NOT EXISTS vector;"
+    # command precisa ser uma lista: com uma string, o Compose a divide em tokens
+    # e o `sh -c` receberia apenas "PGPASSWORD=postgres" como script (exit 0 sem
+    # executar o psql). Como lista, o item unico chega inteiro ao shell.
+    command:
+      - >
+        PGPASSWORD=postgres
+        psql "postgresql://postgres@postgres:5432/rag" -v ON_ERROR_STOP=1
+        -c "CREATE EXTENSION IF NOT EXISTS vector;"
     restart: "no"
 
 volumes:
