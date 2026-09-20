@@ -153,3 +153,66 @@ python src/chat.py
 ## Entregável
 
 Repositório público no GitHub contendo todo o código-fonte e README com instruções claras de execução do projeto.
+
+---
+
+# Guia de execução passo a passo
+
+## Pré-requisitos
+
+- Python 3.10 ou superior instalado (recomendado 3.12)
+- Docker + Docker Compose instalados
+- Conta Google e uma **API Key gratuita** do Google AI Studio (criada em https://aistudio.google.com/apikey)
+
+## 1. Configurar as variáveis de ambiente
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` e coloque sua chave do Google em `GOOGLE_API_KEY`.
+
+> ⚠️ O arquivo `.env` NÃO deve ser enviado para o GitHub (contém sua chave). Ele já está no `.gitignore`.
+
+## 2. Criar o ambiente virtual e instalar as dependências
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+## 3. Subir o banco de dados (PostgreSQL + pgVector)
+
+```bash
+docker compose up -d
+```
+
+Isso sobe o PostgreSQL na porta `5432` (banco `rag`, usuário/senha `postgres`) e instala a extensão `vector`.
+
+## 4. Ingerir o PDF
+
+```bash
+python src/ingest.py
+```
+
+Esse script lê o `document.pdf`, divide o texto em pedaços de 1000 caracteres (com 150 de sobreposição), gera os embeddings com o modelo `gemini-embedding-001` e salva tudo no banco vetorial.
+
+## 5. Rodar o chat
+
+```bash
+python src/chat.py
+```
+
+Digite suas perguntas sobre o documento. Para sair, digite `sair`.
+
+## Observações
+
+- Se você trocar o modelo de embeddings depois de já ter feito a ingestão, as dimensões dos vetores não vão bater. Nesse caso, apague a coleção/volume do banco e refaça a ingestão:
+  ```bash
+  docker compose down -v
+  docker compose up -d
+  python src/ingest.py
+  ```
+- Os modelos usados são da **camada gratuita** do Google: `gemini-embedding-001` (embeddings) e `gemini-3.5-flash-lite` (respostas). É possível trocá-los pelas variáveis `EMBEDDING_MODEL` e `LLM_MODEL` no `.env`.
+- A ingestão envia os chunks em lotes de 20 com uma pausa entre eles, para respeitar o limite de requisições por minuto da camada gratuita.
