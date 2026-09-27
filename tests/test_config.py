@@ -36,11 +36,21 @@ def test_settings_reads_overridden_models(monkeypatch):
     assert settings.google_llm_model == "custom-llm"
 
 
-def test_settings_raises_when_required_var_missing(monkeypatch):
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-    monkeypatch.delenv("DATABASE_URL", raising=False)
-    monkeypatch.delenv("PG_VECTOR_COLLECTION_NAME", raising=False)
-    monkeypatch.delenv("PDF_PATH", raising=False)
+REQUIRED_ENV_VARS = {
+    "GOOGLE_API_KEY": "fake-key",
+    "DATABASE_URL": "postgresql+psycopg://postgres:postgres@localhost:5432/rag",
+    "PG_VECTOR_COLLECTION_NAME": "test_collection",
+    "PDF_PATH": "document.pdf",
+}
+
+
+@pytest.mark.parametrize("missing_var", sorted(REQUIRED_ENV_VARS))
+def test_settings_raises_when_one_required_var_is_missing(missing_var, monkeypatch):
+    for name, value in REQUIRED_ENV_VARS.items():
+        if name == missing_var:
+            monkeypatch.delenv(name, raising=False)
+        else:
+            monkeypatch.setenv(name, value)
 
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
