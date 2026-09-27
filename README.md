@@ -150,6 +150,16 @@ python src/ingest.py
 python src/chat.py
 ```
 
+## Testes
+
+Os testes cobrem apenas as partes puras (sem rede, sem banco): montagem de prompt e validação
+de configuração.
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## Entregável
 
 Repositório público no GitHub contendo todo o código-fonte e README com instruções claras de execução do projeto.
