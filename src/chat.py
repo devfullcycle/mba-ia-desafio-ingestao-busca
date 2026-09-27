@@ -1,13 +1,9 @@
+from typing import Callable
+
 from search import search_prompt
 
 
-def main() -> None:
-    chain = search_prompt()
-
-    if not chain:
-        print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
-        return
-
+def run_chat_loop(chain: Callable[[str], str]) -> None:
     print("Faça sua pergunta (digite 'sair' para encerrar):\n")
 
     while True:
@@ -24,8 +20,23 @@ def main() -> None:
         if not pergunta:
             continue
 
-        resposta = chain(pergunta)
+        try:
+            resposta = chain(pergunta)
+        except Exception as exc:
+            print(f"Erro ao processar a pergunta: {exc}\n")
+            continue
+
         print(f"RESPOSTA: {resposta}\n")
+
+
+def main() -> None:
+    chain = search_prompt()
+
+    if not chain:
+        print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
+        return
+
+    run_chat_loop(chain)
 
 
 if __name__ == "__main__":
