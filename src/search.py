@@ -1,3 +1,10 @@
+from typing import Callable, Optional
+
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_postgres import PGVector
+
+from config import get_settings
+
 PROMPT_TEMPLATE = """
 CONTEXTO:
 {contexto}
@@ -25,5 +32,40 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
-    pass
+
+def build_prompt(pergunta: str, contexto: str) -> str:
+    return PROMPT_TEMPLATE.format(contexto=contexto, pergunta=pergunta)
+
+
+def search_prompt() -> Optional[Callable[[str], str]]:
+    try:
+        settings = get_settings()
+
+        embeddings = GoogleGenerativeAIEmbeddings(
+            model=settings.google_embedding_model,
+            google_api_key=settings.google_api_key,
+        )
+
+        store = PGVector(
+            embeddings=embeddings,
+            collection_name=settings.pg_vector_collection_name,
+            connection=settings.database_url,
+            use_jsonb=True,
+        )
+
+        llm = ChatGoogleGenerativeAI(
+            model=settings.google_llm_model,
+            google_api_key=settings.google_api_key,
+        )
+    except Exception as exc:
+        print(f"Erro ao inicializar o chat: {exc}")
+        return None
+
+    def ask(pergunta: str) -> str:
+        resultados = store.similarity_search_with_score(pergunta, k=10)
+        contexto = "\n\n".join(doc.page_content for doc, _score in resultados)
+        prompt = build_prompt(pergunta=pergunta, contexto=contexto)
+        resposta = llm.invoke(prompt)
+        return resposta.content
+
+    return ask
