@@ -32,9 +32,22 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
+NO_DOCUMENTS_MESSAGE = (
+    "Nenhum documento indexado. Rode 'python src/ingest.py' antes de fazer perguntas."
+)
+
 
 def build_prompt(pergunta: str, contexto: str) -> str:
     return PROMPT_TEMPLATE.format(contexto=contexto, pergunta=pergunta)
+
+
+def answer(pergunta: str, resultados, invoke: Callable[[str], str]) -> str:
+    if not resultados:
+        return NO_DOCUMENTS_MESSAGE
+
+    contexto = "\n\n".join(doc.page_content for doc, _score in resultados)
+    prompt = build_prompt(pergunta=pergunta, contexto=contexto)
+    return invoke(prompt)
 
 
 def search_prompt() -> Optional[Callable[[str], str]]:
@@ -63,9 +76,6 @@ def search_prompt() -> Optional[Callable[[str], str]]:
 
     def ask(pergunta: str) -> str:
         resultados = store.similarity_search_with_score(pergunta, k=10)
-        contexto = "\n\n".join(doc.page_content for doc, _score in resultados)
-        prompt = build_prompt(pergunta=pergunta, contexto=contexto)
-        resposta = llm.invoke(prompt)
-        return resposta.content
+        return answer(pergunta, resultados, lambda prompt: llm.invoke(prompt).content)
 
     return ask
