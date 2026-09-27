@@ -5,12 +5,17 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_postgres import PGVector
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pydantic import ValidationError
 
 from config import get_settings
 
 
 def ingest_pdf() -> None:
-    settings = get_settings()
+    try:
+        settings = get_settings()
+    except ValidationError as exc:
+        print(f"Erro de configuração: {exc}")
+        sys.exit(1)
 
     pdf_path = Path(settings.pdf_path)
     if not pdf_path.exists():

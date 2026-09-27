@@ -18,3 +18,19 @@ def test_ingest_pdf_exits_when_pdf_missing(tmp_path, monkeypatch, capsys):
 
     assert exc_info.value.code == 1
     assert "não encontrado" in capsys.readouterr().out
+
+
+def test_ingest_pdf_exits_when_required_config_missing(tmp_path, monkeypatch, capsys):
+    # Roda a partir de um diretório sem .env, senão get_settings() carregaria o .env
+    # real do repositório e mascararia o cenário de configuração ausente.
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("PG_VECTOR_COLLECTION_NAME", raising=False)
+    monkeypatch.delenv("PDF_PATH", raising=False)
+
+    with pytest.raises(SystemExit) as exc_info:
+        ingest_pdf()
+
+    assert exc_info.value.code == 1
+    assert "configuração" in capsys.readouterr().out.lower()
