@@ -123,6 +123,9 @@ Faça um fork do repositório para utilizar a estrutura abaixo: https://github.c
 
 ## VirtualEnv para Python
 
+Requer Python 3.11, 3.12 ou 3.13 (`psycopg-binary==3.2.9`, pinado no `requirements.txt`, não
+tem wheel disponível para Python 3.14+).
+
 Crie e ative um ambiente virtual antes de instalar dependências:
 
 ```
@@ -132,19 +135,34 @@ source venv/bin/activate
 
 ## Ordem de execução
 
-1. Subir o banco de dados:
+1. Instalar as dependências:
+
+```
+pip install -r requirements.txt
+```
+
+2. Configurar as variáveis de ambiente:
+
+```
+cp .env.example .env
+```
+
+Abra o `.env` e preencha `GOOGLE_API_KEY` com sua chave da Google AI Studio
+(https://aistudio.google.com/apikey).
+
+3. Subir o banco de dados:
 
 ```
 docker compose up -d
 ```
 
-2. Executar ingestão do PDF:
+4. Executar ingestão do PDF:
 
 ```
 python src/ingest.py
 ```
 
-3. Rodar o chat:
+5. Rodar o chat:
 
 ```
 python src/chat.py
