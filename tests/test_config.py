@@ -44,3 +44,15 @@ def test_settings_raises_when_required_var_missing(monkeypatch):
 
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
+
+
+def test_settings_raises_when_required_var_is_empty(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "")
+    monkeypatch.setenv(
+        "DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/rag"
+    )
+    monkeypatch.setenv("PG_VECTOR_COLLECTION_NAME", "test_collection")
+    monkeypatch.setenv("PDF_PATH", "document.pdf")
+
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
