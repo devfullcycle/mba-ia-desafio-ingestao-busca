@@ -22,11 +22,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      PGPASSWORD=postgres
-      psql "postgresql://postgres@postgres:5432/rag" -v ON_ERROR_STOP=1
-      -c "CREATE EXTENSION IF NOT EXISTS vector;"
+    entrypoint: >
+      /bin/sh -c "
+        set -ex
+        echo 'Aguardando o Postgres estar 100% pronto...'
+        sleep 5
+        echo 'Criando a extensão vector...'
+        PGPASSWORD=postgres psql 'postgresql://postgres@postgres:5432/rag' -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+        echo 'Extensão criada com sucesso!'
+      "
     restart: "no"
 
 volumes:
