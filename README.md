@@ -128,7 +128,25 @@ Crie e ative um ambiente virtual antes de instalar dependências:
 ```
 python3 -m venv venv
 source venv/bin/activate
+pip install -r requirements.txt
 ```
+
+## Configuração do ambiente
+
+O arquivo `.env` contém configurações locais e chaves de API, por isso não é versionado. Crie-o na raiz do projeto a partir do template:
+
+```
+cp .env.example .env
+```
+
+Edite o `.env` e preencha as variáveis do provedor escolhido:
+
+- **OpenAI:** `OPENAI_API_KEY`, `OPENAI_EMBEDDING_MODEL` e `OPENAI_CHAT_MODEL`.
+- **Google Gemini:** `GOOGLE_API_KEY`, `GOOGLE_EMBEDDING_MODEL` e `GOOGLE_CHAT_MODEL`.
+
+Use nomes de modelos atualmente disponíveis na sua conta. Configure apenas um provedor. Os valores de `DATABASE_URL`, `PG_VECTOR_COLLECTION_NAME` e `PDF_PATH` do template correspondem ao PostgreSQL local do Docker Compose e ao `document.pdf` na raiz. Se mudar usuário, senha, porta ou banco no `docker-compose.yml`, atualize também a `DATABASE_URL`.
+
+O `.env` é um arquivo oculto; use `ls -a` para confirmar que está na raiz. Não publique nem compartilhe esse arquivo ou suas chaves de API.
 
 ## Ordem de execução
 
