@@ -1,6 +1,7 @@
 import argparse
 
 from config import load_get_config
+from ingest import ingest_pdf
 
 
 def parse_args() -> argparse.Namespace:
@@ -20,7 +21,7 @@ def main():
 
     args = parse_args()
     if args.command == 'ingest':
-        pass
+        ingest_pdf(args.pdf_name)
     elif args.command == 'chat':
         pass
 
